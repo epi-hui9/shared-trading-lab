@@ -254,79 +254,8 @@ class BacktestEngine:
         if self.results is None or self.portfolio_value is None:
             print("请先运行回测")
             return
-        
-        fig, axes = plt.subplots(3, 1, figsize=(12, 10))
-        
-        # 图1: 价格和交易信号
-        ax1 = axes[0]
-        ax1.plot(self.results['Date'], self.results['Close'], label='收盘价', linewidth=1)
-        
-        # 标记买入点
-        buy_signals = self.results[self.results['Signal'] == 1]
-        if not buy_signals.empty:
-            ax1.scatter(
-                buy_signals['Date'], buy_signals['Close'],
-                color='green', marker='^', s=100, label='买入', zorder=5
-            )
-        
-        # 标记卖出点
-        sell_signals = self.results[self.results['Signal'] == -1]
-        if not sell_signals.empty:
-            ax1.scatter(
-                sell_signals['Date'], sell_signals['Close'],
-                color='red', marker='v', s=100, label='卖出', zorder=5
-            )
-        
-        ax1.set_title('股票价格和交易信号', fontsize=14, fontproperties='SimHei')
-        ax1.set_ylabel('价格', fontproperties='SimHei')
-        ax1.legend(prop={'family': 'SimHei'})
-        ax1.grid(True, alpha=0.3)
-        
-        # 图2: 资产价值变化
-        ax2 = axes[1]
-        ax2.plot(
-            self.portfolio_value['Date'],
-            self.portfolio_value['Portfolio_Value'],
-            label='策略资产', linewidth=2, color='blue'
-        )
-        ax2.axhline(
-            y=self.initial_capital,
-            color='gray', linestyle='--', label='初始资金'
-        )
-        ax2.set_title('资产价值变化', fontsize=14, fontproperties='SimHei')
-        ax2.set_ylabel('资产价值', fontproperties='SimHei')
-        ax2.legend(prop={'family': 'SimHei'})
-        ax2.grid(True, alpha=0.3)
-        
-        # 图3: 收益率分布
-        ax3 = axes[2]
-        returns = self.portfolio_value['Returns'].dropna()
-        ax3.plot(self.portfolio_value['Date'], returns, alpha=0.7, linewidth=1)
-        ax3.axhline(y=0, color='black', linestyle='-', linewidth=0.5)
-        ax3.fill_between(
-            self.portfolio_value['Date'],
-            returns,
-            0,
-            where=(returns >= 0),
-            alpha=0.3,
-            color='green',
-            label='盈利'
-        )
-        ax3.fill_between(
-            self.portfolio_value['Date'],
-            returns,
-            0,
-            where=(returns < 0),
-            alpha=0.3,
-            color='red',
-            label='亏损'
-        )
-        ax3.set_title('每日收益率', fontsize=14, fontproperties='SimHei')
-        ax3.set_xlabel('日期', fontproperties='SimHei')
-        ax3.set_ylabel('收益率', fontproperties='SimHei')
-        ax3.legend(prop={'family': 'SimHei'})
-        ax3.grid(True, alpha=0.3)
-        
+
+        fig = self.create_figure()
         plt.tight_layout()
         
         if save_path:
@@ -335,3 +264,92 @@ class BacktestEngine:
         
         # 关闭图表，不显示弹窗
         plt.close()
+
+    def create_figure(self):
+        """
+        生成并返回 matplotlib Figure（用于网页展示/下载等）。
+        注意：调用方负责保存/关闭。
+        """
+        if self.results is None or self.portfolio_value is None:
+            raise ValueError("请先运行回测")
+
+        fig, axes = plt.subplots(3, 1, figsize=(12, 10))
+
+        # Chart 1: Price & Signals
+        ax1 = axes[0]
+        ax1.plot(self.results["Date"], self.results["Close"], label="Close", linewidth=1)
+
+        buy_signals = self.results[self.results["Signal"] == 1]
+        if not buy_signals.empty:
+            ax1.scatter(
+                buy_signals["Date"],
+                buy_signals["Close"],
+                color="green",
+                marker="^",
+                s=70,
+                label="BUY",
+                zorder=5,
+            )
+
+        sell_signals = self.results[self.results["Signal"] == -1]
+        if not sell_signals.empty:
+            ax1.scatter(
+                sell_signals["Date"],
+                sell_signals["Close"],
+                color="red",
+                marker="v",
+                s=70,
+                label="SELL",
+                zorder=5,
+            )
+
+        ax1.set_title("Price & Signals")
+        ax1.set_ylabel("Price")
+        ax1.legend()
+        ax1.grid(True, alpha=0.3)
+
+        # Chart 2: Portfolio Value
+        ax2 = axes[1]
+        ax2.plot(
+            self.portfolio_value["Date"],
+            self.portfolio_value["Portfolio_Value"],
+            label="Portfolio Value",
+            linewidth=2,
+            color="blue",
+        )
+        ax2.axhline(y=self.initial_capital, color="gray", linestyle="--", label="Initial Capital")
+        ax2.set_title("Portfolio Value")
+        ax2.set_ylabel("Value")
+        ax2.legend()
+        ax2.grid(True, alpha=0.3)
+
+        # Chart 3: Daily Returns
+        ax3 = axes[2]
+        returns = self.portfolio_value["Returns"].dropna()
+        ax3.plot(self.portfolio_value["Date"], returns, alpha=0.7, linewidth=1, label="Daily Return")
+        ax3.axhline(y=0, color="black", linestyle="-", linewidth=0.5)
+        ax3.fill_between(
+            self.portfolio_value["Date"],
+            returns,
+            0,
+            where=(returns >= 0),
+            alpha=0.3,
+            color="green",
+            label="Gain",
+        )
+        ax3.fill_between(
+            self.portfolio_value["Date"],
+            returns,
+            0,
+            where=(returns < 0),
+            alpha=0.3,
+            color="red",
+            label="Loss",
+        )
+        ax3.set_title("Daily Returns")
+        ax3.set_xlabel("Date")
+        ax3.set_ylabel("Return")
+        ax3.legend()
+        ax3.grid(True, alpha=0.3)
+
+        return fig

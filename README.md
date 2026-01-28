@@ -14,25 +14,31 @@
 
 ## 快速开始
 
-### 方法 1：使用图形界面（推荐）
+### 方法 1：网页版（Web App）
+
+```bash
+streamlit run app.py
+```
+
+### 方法 2：本地 GUI（给自己用）
 
 ```bash
 python gui.py
 ```
 
-### 方法 2：命令行使用
+### 方法 3：命令行使用（CLI）
 
 ```bash
 python -m strategies.strategy_1
 ```
 
-### 方法 3：打包成 exe
+### 方法 4：打包（Build）
 
-```bash
-python build_exe.py
-```
+- macOS：会产出 `dist/SharedTradingLab.app`
+- Windows：会产出 `dist/SharedTradingLab.exe`
 
-详细说明见 [如何打包.md](如何打包.md)
+打包说明见 `Windows打包教程.md`（Windows）以及 `build_exe.py`。
+网页版部署说明见 `DEPLOY_STREAMLIT.md`。
 
 ## 项目结构
 
@@ -40,8 +46,10 @@ python build_exe.py
 shared-trading-lab/
 ├── README.md              # 项目说明
 ├── USAGE.md              # 使用指南
-├── 如何打包.md           # 打包说明
+├── DEPLOY_STREAMLIT.md   # 网页部署说明（Streamlit Cloud）
 ├── requirements.txt       # Python 依赖包
+├── requirements-dev.txt   # 打包依赖（仅本地/Windows需要）
+├── app.py                 # 网页版入口（Streamlit）
 ├── gui.py                 # 图形界面主程序
 ├── build_exe.py          # 打包脚本
 ├── backtest/             # 回测框架核心代码

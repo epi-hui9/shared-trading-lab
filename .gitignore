@@ -43,6 +43,16 @@ build/
 dist/
 *.spec
 __pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# 回测结果图表
+*.png
+*.jpg
+*.pdf
+!README.md
 
 # IDE
 .vscode/

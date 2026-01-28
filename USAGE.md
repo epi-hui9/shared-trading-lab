@@ -2,7 +2,14 @@
 
 ## 快速开始
 
-### 方法 1：图形界面（推荐）
+### 方法 1：网页版（Web App）
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+### 方法 2：本地 GUI（给自己用）
 
 ```bash
 python gui.py
@@ -15,23 +22,24 @@ python gui.py
 4. 点击"开始回测"
 5. 查看结果
 
-### 方法 2：命令行
+### 方法 3：命令行（CLI）
 
 ```bash
 python -m strategies.strategy_1
 ```
 
-### 方法 3：打包成 exe
+### 方法 4：打包（Build）
 
 ```bash
-# 安装打包工具
-pip install pyinstaller
+# 安装打包工具（仅打包需要）
+pip install -r requirements-dev.txt
 
 # 打包
 python build_exe.py
 ```
 
-打包后的 exe 文件在 `dist/SharedTradingLab.exe`，可以直接运行。
+Windows：`dist/SharedTradingLab.exe`  
+macOS：`dist/SharedTradingLab.app`
 
 ## 股票代码格式
 
@@ -70,7 +78,7 @@ A: 需要网络连接。如果失败，请检查：
 
 ### Q: 图表中文显示乱码？
 
-A: 这是正常的，图表中的中文可能显示为方框，但不影响数据准确性。
+A: 网页版和新版图表默认用英文标题，避免字体问题；不影响回测结果。
 
 ### Q: 可以测试中国股票吗？
 
