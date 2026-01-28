@@ -10,6 +10,8 @@ from datetime import date
 
 import pandas as pd
 import streamlit as st
+import plotly.graph_objects as go
+import plotly.io as pio
 
 from backtest.engine import BacktestEngine
 from strategies.strategy_1 import Strategy1
@@ -17,7 +19,7 @@ from strategies.strategy_1 import Strategy1
 
 st.set_page_config(
     page_title="Shared Trading Lab",
-    page_icon="📈",
+    page_icon="📊",
     layout="wide",
 )
 
@@ -37,7 +39,7 @@ def _run_backtest_cached(
     long_window: int,
 ) -> dict:
     """
-    用 Streamlit 缓存（cache）避免重复下载同一份数据。
+    用 Streamlit 缓存避免重复下载同一份数据。
     注意：只缓存“相同输入参数”的结果。
     """
     strategy = Strategy1(short_window=short_window, long_window=long_window)
@@ -48,25 +50,140 @@ def _run_backtest_cached(
     return result
 
 
+def _build_charts(results_df: pd.DataFrame, portfolio_df: pd.DataFrame) -> tuple[go.Figure, go.Figure, go.Figure]:
+    """
+    生成三张图（纯中文标签）：
+    1）价格 + 买卖点
+    2）资产曲线
+    3）每日收益率
+    """
+    df = results_df.copy()
+    pf = portfolio_df.copy()
+
+    df["Date"] = pd.to_datetime(df["Date"])
+    pf["Date"] = pd.to_datetime(pf["Date"])
+
+    # 图1：价格 + 买卖点
+    fig1 = go.Figure()
+    fig1.add_trace(
+        go.Scatter(
+            x=df["Date"],
+            y=df["Close"],
+            mode="lines",
+            name="收盘价",
+            line=dict(width=1),
+        )
+    )
+    buys = df[df["Signal"] == 1]
+    sells = df[df["Signal"] == -1]
+    if not buys.empty:
+        fig1.add_trace(
+            go.Scatter(
+                x=buys["Date"],
+                y=buys["Close"],
+                mode="markers",
+                name="买入",
+                marker=dict(color="green", symbol="triangle-up", size=10),
+            )
+        )
+    if not sells.empty:
+        fig1.add_trace(
+            go.Scatter(
+                x=sells["Date"],
+                y=sells["Close"],
+                mode="markers",
+                name="卖出",
+                marker=dict(color="red", symbol="triangle-down", size=10),
+            )
+        )
+    fig1.update_layout(
+        title="价格与买卖点",
+        xaxis_title="日期",
+        yaxis_title="价格",
+        legend_title="图例",
+        margin=dict(l=10, r=10, t=50, b=10),
+        height=360,
+    )
+
+    # 图2：资产曲线
+    fig2 = go.Figure()
+    fig2.add_trace(
+        go.Scatter(
+            x=pf["Date"],
+            y=pf["Portfolio_Value"],
+            mode="lines",
+            name="总资产",
+            line=dict(width=2, color="#1f77b4"),
+        )
+    )
+    fig2.update_layout(
+        title="资产曲线",
+        xaxis_title="日期",
+        yaxis_title="资产",
+        legend_title="图例",
+        margin=dict(l=10, r=10, t=50, b=10),
+        height=300,
+    )
+
+    # 图3：每日收益率
+    fig3 = go.Figure()
+    fig3.add_trace(
+        go.Scatter(
+            x=pf["Date"],
+            y=pf["Returns"],
+            mode="lines",
+            name="每日收益率",
+            line=dict(width=1),
+        )
+    )
+    fig3.add_hline(y=0, line_width=1, line_color="black")
+    fig3.update_layout(
+        title="每日收益率",
+        xaxis_title="日期",
+        yaxis_title="收益率",
+        legend_title="图例",
+        margin=dict(l=10, r=10, t=50, b=10),
+        height=300,
+    )
+
+    return fig1, fig2, fig3
+
+
 def main():
     st.title("Shared Trading Lab")
-    st.caption("一个通用的股票策略回测工具（Backtest） · 网页版（Web App）")
+    st.caption("一个通用的股票策略回测工具 · 网页版")
+
+    with st.expander("说明", expanded=False):
+        st.markdown(
+            """
+**策略 1：均线交叉**
+- 使用两条均线：短期均线与长期均线
+- 买入：短期均线从下向上穿过长期均线
+- 卖出：短期均线从上向下穿过长期均线
+- 其它时间：不交易
+
+**三张图**
+- 价格与买卖点：看什么时候买/卖
+- 资产曲线：看总体赚钱情况与回撤
+- 每日收益率：看每天波动大小
+"""
+        )
 
     with st.sidebar:
-        st.header("参数")
+        st.header("参数设置")
 
-        symbol = st.text_input("股票代码（Symbol）", value="AAPL").strip()
+        symbol = st.text_input("股票代码", value="AAPL").strip()
         st.caption("例：AAPL / TSLA / 0700.HK / 000001.SZ / 600000.SS")
 
         col1, col2 = st.columns(2)
         with col1:
-            start = st.date_input("开始日期（Start）", value=date(2021, 1, 1))
+            start = st.date_input("开始日期", value=date(2021, 1, 1))
         with col2:
-            end = st.date_input("结束日期（End）", value=date.today())
+            end = st.date_input("结束日期", value=date.today())
 
         st.divider()
-        st.subheader("策略（Strategy）")
-        st.selectbox("选择策略", options=["Strategy 1：移动平均"], index=0, disabled=True)
+        st.subheader("策略")
+        st.selectbox("选择策略", options=["策略 1：均线交叉"], index=0, disabled=True)
 
         c1, c2 = st.columns(2)
         with c1:
@@ -76,11 +193,11 @@ def main():
 
         st.divider()
         st.subheader("交易设置")
-        initial_capital = st.number_input("初始资金（Initial Capital）", min_value=100.0, value=10000.0, step=100.0)
-        commission = st.number_input("手续费比例（Commission）", min_value=0.0, max_value=0.05, value=0.001, step=0.0005, format="%.4f")
+        initial_capital = st.number_input("初始资金", min_value=100.0, value=10000.0, step=100.0)
+        commission = st.number_input("手续费比例", min_value=0.0, max_value=0.05, value=0.001, step=0.0005, format="%.4f")
 
         st.divider()
-        run_btn = st.button("开始回测（Run Backtest）", type="primary", use_container_width=True)
+        run_btn = st.button("开始回测", type="primary", use_container_width=True)
 
     if not run_btn:
         st.info("在左侧填好参数，然后点击 **开始回测**。")
@@ -95,7 +212,7 @@ def main():
         return
 
     if short_window >= long_window:
-        st.warning("提示：通常短期均线应小于长期均线（Short < Long）。你也可以继续跑，但含义会比较怪。")
+        st.warning("提示：通常短期均线应小于长期均线。你也可以继续跑，但含义可能不太符合常见用法。")
 
     start_str = start.strftime("%Y-%m-%d")
     end_str = end.strftime("%Y-%m-%d")
@@ -141,17 +258,18 @@ def main():
         }
     )
 
-    st.subheader("图表（Chart）")
+    st.subheader("图表")
     try:
-        fig = engine.create_figure()
-        st.pyplot(fig, clear_figure=True)
+        fig1, fig2, fig3 = _build_charts(result["results"], result["portfolio"])
+        st.plotly_chart(fig1, use_container_width=True)
+        st.plotly_chart(fig2, use_container_width=True)
+        st.plotly_chart(fig3, use_container_width=True)
 
-        img_bytes = io.BytesIO()
-        fig.savefig(img_bytes, format="png", dpi=200, bbox_inches="tight")
-        img_bytes.seek(0)
+        # 下载：把三张图合成一个 PNG（简单起见：只导出第一张，最关键）
+        png_bytes = pio.to_image(fig1, format="png", width=1200, height=600, scale=2)
         st.download_button(
-            "下载图表 PNG",
-            data=img_bytes,
+            "下载图表（PNG）",
+            data=png_bytes,
             file_name=f"{symbol}_{start_str}_{end_str}.png",
             mime="image/png",
             use_container_width=True,
@@ -166,7 +284,7 @@ def main():
         results_df["Date"] = pd.to_datetime(results_df["Date"]).dt.strftime("%Y-%m-%d")
     st.dataframe(results_df.head(50), use_container_width=True)
 
-    with st.expander("查看运行日志（Logs）"):
+    with st.expander("查看运行日志"):
         st.text(stdout_buf.getvalue() or "(没有日志输出)")
 
 
