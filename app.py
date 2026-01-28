@@ -23,6 +23,24 @@ st.set_page_config(
     layout="wide",
 )
 
+常见股票列表 = [
+    ("AAPL", "苹果"),
+    ("MSFT", "微软"),
+    ("TSLA", "特斯拉"),
+    ("NVDA", "英伟达"),
+    ("AMZN", "亚马逊"),
+    ("GOOGL", "谷歌"),
+    ("META", "脸书"),
+    ("0700.HK", "腾讯控股"),
+    ("9988.HK", "阿里巴巴"),
+    ("000001.SZ", "平安银行"),
+    ("600000.SS", "浦发银行"),
+    ("600519.SS", "贵州茅台"),
+    ("300750.SZ", "宁德时代"),
+]
+
+股票名称表 = {代码: 名称 for 代码, 名称 in 常见股票列表}
+
 
 def _is_valid_symbol(symbol: str) -> bool:
     return bool(symbol) and len(symbol) <= 20
@@ -50,7 +68,12 @@ def _run_backtest_cached(
     return result
 
 
-def _build_charts(results_df: pd.DataFrame, portfolio_df: pd.DataFrame) -> tuple[go.Figure, go.Figure, go.Figure]:
+def _build_charts(
+    results_df: pd.DataFrame,
+    portfolio_df: pd.DataFrame,
+    股票代码: str,
+    股票名称: str,
+) -> tuple[go.Figure, go.Figure, go.Figure]:
     """
     生成三张图（纯中文标签）：
     1）价格 + 买卖点
@@ -97,7 +120,7 @@ def _build_charts(results_df: pd.DataFrame, portfolio_df: pd.DataFrame) -> tuple
             )
         )
     fig1.update_layout(
-        title="价格与买卖点",
+        title=f"{股票名称}（{股票代码}）价格与买卖点",
         xaxis_title="日期",
         yaxis_title="价格",
         legend_title="图例",
@@ -117,7 +140,7 @@ def _build_charts(results_df: pd.DataFrame, portfolio_df: pd.DataFrame) -> tuple
         )
     )
     fig2.update_layout(
-        title="资产曲线",
+        title=f"{股票名称}（{股票代码}）资产曲线",
         xaxis_title="日期",
         yaxis_title="资产",
         legend_title="图例",
@@ -138,7 +161,7 @@ def _build_charts(results_df: pd.DataFrame, portfolio_df: pd.DataFrame) -> tuple
     )
     fig3.add_hline(y=0, line_width=1, line_color="black")
     fig3.update_layout(
-        title="每日收益率",
+        title=f"{股票名称}（{股票代码}）每日收益率",
         xaxis_title="日期",
         yaxis_title="收益率",
         legend_title="图例",
@@ -172,8 +195,18 @@ def main():
     with st.sidebar:
         st.header("参数设置")
 
-        symbol = st.text_input("股票代码", value="AAPL").strip()
-        st.caption("例：AAPL / TSLA / 0700.HK / 000001.SZ / 600000.SS")
+        选项列表 = ["手动输入"] + [f"{名称}（{代码}）" for 代码, 名称 in 常见股票列表]
+        选择 = st.selectbox("常见股票（可选）", options=选项列表, index=1)
+
+        if 选择 == "手动输入":
+            symbol = st.text_input("股票代码", value="AAPL").strip().upper()
+            股票名称 = 股票名称表.get(symbol, "未知股票")
+            st.caption("例：AAPL / TSLA / 0700.HK / 000001.SZ / 600000.SS")
+        else:
+            股票名称 = 选择.split("（", 1)[0]
+            symbol = 选择.split("（", 1)[1].rstrip("）")
+
+        st.caption(f"当前选择：{股票名称}（{symbol}）")
 
         col1, col2 = st.columns(2)
         with col1:
@@ -238,7 +271,7 @@ def main():
     metrics = result["metrics"]
     engine: BacktestEngine = result["_engine"]
 
-    st.success("回测完成。")
+    st.success(f"回测完成：{股票名称}（{symbol}）")
 
     m1, m2, m3, m4 = st.columns(4)
     m1.metric("总收益率", f"{metrics['total_return']:.2%}")
@@ -260,7 +293,7 @@ def main():
 
     st.subheader("图表")
     try:
-        fig1, fig2, fig3 = _build_charts(result["results"], result["portfolio"])
+        fig1, fig2, fig3 = _build_charts(result["results"], result["portfolio"], 股票代码=symbol, 股票名称=股票名称)
         st.plotly_chart(fig1, use_container_width=True)
         st.plotly_chart(fig2, use_container_width=True)
         st.plotly_chart(fig3, use_container_width=True)
@@ -270,7 +303,7 @@ def main():
         st.download_button(
             "下载图表（PNG）",
             data=png_bytes,
-            file_name=f"{symbol}_{start_str}_{end_str}.png",
+            file_name=f"{股票名称}_{symbol}_{start_str}_{end_str}.png",
             mime="image/png",
             use_container_width=True,
         )
