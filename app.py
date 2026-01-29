@@ -208,6 +208,21 @@ def main():
 - 卖出：均线死叉 或 RSI > 75（趋势向下或过热）
 - 优势：减少假信号，避免在过热时买入，避免过早卖出
 
+**RSI 阈值详解（用生活例子理解）**
+- **RSI 是什么**：0-100 的数字，表示市场"热度"
+  - RSI = 30：很冷清，买的人少（超卖）
+  - RSI = 50：正常，买卖平衡
+  - RSI = 70：很热，买的人多（超买）
+  - RSI = 90：超级热，大家都在抢购
+
+- **买入阈值（RSI < 70）**：就像"不要在大家疯狂抢购 iPhone 的时候去买"
+  - 如果 RSI = 80（很热），即使均线金叉了，也不买（因为太热了，可能马上要跌）
+  - 如果 RSI = 60（正常热），均线金叉了就可以买（热度刚好，还有上涨空间）
+
+- **卖出阈值（RSI > 75）**：就像"当大家疯狂抢购 iPhone 的时候，赶紧卖掉"
+  - 如果 RSI = 80（很热），即使均线还没死叉，也要卖（因为太热了，可能马上要跌）
+  - 如果 RSI = 65（正常热），继续持有（热度还可以，可能还会涨）
+
 **三张图**
 - 价格与买卖点：看什么时候买/卖
 - 资产曲线：看总体赚钱情况与回撤
@@ -257,9 +272,23 @@ def main():
             with rsi_col1:
                 rsi_period = st.number_input("RSI 周期", min_value=5, max_value=30, value=14, step=1)
             with rsi_col2:
-                rsi_buy_threshold = st.number_input("买入 RSI 阈值", min_value=50.0, max_value=85.0, value=70.0, step=5.0, help="RSI 低于此值时才买入，避免过热时买入")
+                rsi_buy_threshold = st.number_input(
+                    "买入 RSI 阈值", 
+                    min_value=50.0, 
+                    max_value=85.0, 
+                    value=70.0, 
+                    step=5.0, 
+                    help="RSI 必须低于这个数字才能买入。比如设为 70，意思是：即使均线金叉了，如果 RSI > 70（太热），也不买。就像不要在大家疯狂抢购的时候去买。"
+                )
             with rsi_col3:
-                rsi_overbought = st.number_input("卖出 RSI 阈值", min_value=60.0, max_value=90.0, value=75.0, step=5.0, help="RSI 超过此值时卖出，避免过早卖出")
+                rsi_overbought = st.number_input(
+                    "卖出 RSI 阈值", 
+                    min_value=60.0, 
+                    max_value=90.0, 
+                    value=75.0, 
+                    step=5.0, 
+                    help="RSI 超过这个数字就卖出。比如设为 75，意思是：如果 RSI > 75（太热），即使均线还没死叉，也要卖。就像在大家疯狂抢购的时候赶紧卖掉。"
+                )
         else:
             rsi_period = 14
             rsi_buy_threshold = 70.0
