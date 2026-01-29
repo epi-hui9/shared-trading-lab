@@ -1,57 +1,37 @@
 # 绘九的交易实验室
 
-> 一个通用的股票策略回测工具 - 可以回测任何股票的历史数据
+> 绘九一起做的「股票策略实验室」：支持单只回测和组合回测
 
 ## 项目简介
 
-**绘九的交易实验室** 是一个功能强大的股票策略回测工具，支持：
+**绘九的交易实验室** 是一个面向绘和阿九（绘九）的小型股票策略实验工具，支持：
 
-- ✅ **回测任何股票**：支持美股、港股、A股等主要市场的股票
-- ✅ **灵活的策略系统**：可以轻松切换不同的交易策略
-- ✅ **图形化界面**：提供友好的 GUI 界面，无需编程即可使用
-- ✅ **详细的分析报告**：自动生成收益率、风险指标、可视化图表等
-- ✅ **可打包成 exe**：可以打包成独立的可执行文件，方便分享和使用
+- ✅ **回测任何股票**：支持美股、港股、A股等主要市场的股票（基于 Yahoo Finance）
+- ✅ **三种可切换策略**：均线、均线 + RSI、MACD + 成交量
+- ✅ **单只回测 & 组合回测**：既可以看单只股票，也可以看一篮子股票的组合净值
+- ✅ **中文网页界面**：浏览器打开即可使用，适合非技术背景
+- ✅ **详细指标与图表**：总收益率、年化、最大回撤、夏普比率 + 图表下载
 
 ## 快速开始
 
-### 方法 1：网页版（Web App）
+### Web 版（推荐）
 
 ```bash
+pip install -r requirements.txt
 streamlit run app.py
 ```
 
-### 方法 2：本地 GUI（给自己用）
-
-```bash
-python gui.py
-```
-
-### 方法 3：命令行使用（CLI）
-
-```bash
-python -m strategies.strategy_1
-```
-
-### 方法 4：打包（Build）
-
-- macOS：会产出 `dist/SharedTradingLab.app`
-- Windows：会产出 `dist/SharedTradingLab.exe`
-
-打包说明见 `Windows打包教程.md`（Windows）以及 `build_exe.py`。
-网页版部署说明见 `DEPLOY_STREAMLIT.md`。
+> 提示：也可以参考 `DEPLOY_STREAMLIT.md` 把网页部署到 Streamlit Cloud，这样阿九直接用浏览器访问即可。
 
 ## 项目结构
 
 ```
 shared-trading-lab/
 ├── README.md              # 项目说明
-├── USAGE.md              # 使用指南
+├── USAGE.md               # 使用指南（更详细的使用说明）
 ├── DEPLOY_STREAMLIT.md   # 网页部署说明（Streamlit Cloud）
 ├── requirements.txt       # Python 依赖包
-├── requirements-dev.txt   # 打包依赖（仅本地/Windows需要）
 ├── app.py                 # 网页版入口（Streamlit）
-├── gui.py                 # 图形界面主程序
-├── build_exe.py          # 打包脚本
 ├── backtest/             # 回测框架核心代码
 │   ├── __init__.py
 │   ├── engine.py         # 回测引擎
@@ -59,75 +39,81 @@ shared-trading-lab/
 │   └── data_loader.py    # 数据加载器
 ├── strategies/           # 策略实现
 │   ├── __init__.py
-│   └── strategy_1.py    # 策略1：移动平均策略
+│   ├── strategy_1.py     # 策略1：均线策略
+│   ├── strategy_2.py     # 策略2：均线 + RSI
+│   └── strategy_3.py     # 策略3：MACD + 成交量
 ├── data/                 # 数据存储
 └── logs/                 # 回测结果和日志
 ```
 
 ## 核心功能
 
-### 1. 多市场支持
+### 1. 多市场支持（股票代码格式）
 
 - **美股**：如 `AAPL`（苹果）、`TSLA`（特斯拉）、`MSFT`（微软）
 - **港股**：如 `0700.HK`（腾讯）、`9988.HK`（阿里巴巴）
 - **A股**：如 `000001.SZ`（平安银行）、`600000.SS`（浦发银行）
 - **其他国际市场**：欧洲、日本、澳大利亚等
 
-### 2. 策略系统
+### 2. 策略系统（像“换衣服”一样切换）
 
-策略就像"衣服"一样可以轻松切换：
+策略就像"衣服"一样可以轻松切换，目前内置 3 个：
 
-- **Strategy 1**：移动平均策略（5日均线 vs 30日均线）
-- 更多策略可以轻松添加...
+- **策略 1：均线策略**  
+  - 用两条均线（短期 vs 长期）判断趋势  
+  - 短期上穿长期 → 买入；短期下穿长期 → 卖出
 
-### 3. 回测引擎
+- **策略 2：均线 + RSI**  
+  - 在策略 1 的基础上，加了一个“热度指标 RSI”  
+  - 避免在已经过热的位置买入，减少追高的概率
+
+- **策略 3：MACD + 成交量**  
+  - 用 MACD 看“趋势是否在加速”，用成交量看“有没有真金白银在推”  
+  - 只有“趋势对”且“有资金推”才考虑上车
+
+### 3. 回测引擎与组合回测
 
 - 自动下载历史数据
 - 模拟真实交易（考虑手续费）
 - 计算各种性能指标
 - 生成可视化图表
+- 支持 **单只股票回测** 与 **组合回测（多只股票等权拆分）**
 
-## 使用示例
+在网页左侧可以选择：
 
-### GUI 界面使用
+- **回测模式**：单只股票 / 组合（多只股票）
+- **策略**：策略 1 / 策略 2 / 策略 3
+- **参数**：日期范围、初始资金、手续费、策略参数（均线天数 / RSI / MACD / 成交量等）
 
-1. 运行 `python gui.py`
-2. 输入股票代码（如 `AAPL`）
-3. 选择时间段（如 2021-01-01 到 2024-01-01）
-4. 选择策略（如 Strategy 1）
-5. 点击"开始回测"
-6. 查看结果和图表
+## 网页使用示例
 
-### 命令行使用
+1. 安装依赖：
 
-```python
-from backtest.engine import BacktestEngine
-from strategies.strategy_1 import Strategy1
-
-# 创建策略和引擎
-strategy = Strategy1(short_window=5, long_window=30)
-engine = BacktestEngine(initial_capital=10000.0)
-
-# 运行回测
-results = engine.run(
-    strategy=strategy,
-    symbol='AAPL',
-    start_date='2021-01-01',
-    end_date='2024-01-01'
-)
-
-# 保存图表
-engine.plot_results(save_path='results.png')
+```bash
+pip install -r requirements.txt
 ```
 
-## 添加新策略
+2. 启动网页：
 
-创建新策略非常简单：
+```bash
+streamlit run app.py
+```
 
-1. 在 `strategies/` 目录创建新文件，如 `strategy_2.py`
-2. 继承 `BaseStrategy` 类
-3. 实现 `generate_signals()` 方法
-4. 在 GUI 中添加新策略选项
+3. 在浏览器中：
+   - 选择「单只股票」或「组合（多只股票）」
+   - 选股票代码 / 多选一篮子股票
+   - 选择时间范围、策略与参数
+   - 点击“开始回测”
+   - 查看指标、图表，并可下载 PNG 图片
+
+## 添加新策略（进阶）
+
+如果之后想一起设计更多策略，可以参考：
+
+1. 在 `strategies/` 目录创建新文件，如 `strategy_4.py`
+2. 继承 `BaseStrategy` 类（见 `backtest/strategy.py`）
+3. 实现 `generate_signals()` 方法，返回包含 `Date` 和 `Signal` 列的 DataFrame
+4. 在 `app.py` 中引入并添加到策略选择里
 
 示例：
 
@@ -151,8 +137,8 @@ class Strategy2(BaseStrategy):
 - **pandas**: 数据处理
 - **numpy**: 数值计算
 - **yfinance**: 股票数据获取（Yahoo Finance）
-- **matplotlib**: 可视化
-- **tkinter**: 图形界面（Python 内置）
+- **streamlit**: 网页界面
+- **plotly**: 网页图表与 PNG 导出
 
 ## 数据来源
 
@@ -197,4 +183,4 @@ A: 参考 `strategies/strategy_1.py` 的实现，创建新策略文件即可。
 
 ---
 
-**绘九的交易实验室** - 让股票策略回测变得简单
+**绘九的交易实验室** - 让「一起做实验」这件事变得简单
