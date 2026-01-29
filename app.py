@@ -207,44 +207,64 @@ def main():
     st.markdown(
         """
 <style>
+/* 在线字体（有降级方案；加载失败也不影响显示） */
+@import url("https://fonts.googleapis.com/css2?family=ZCOOL+QingKe+HuangYou&family=Noto+Sans+SC:wght@400;600&display=swap");
+
 /* 轻量优雅排版（尽量使用系统内置中文字体，无需额外下载） */
 :root {
   --hj-text: rgba(17, 24, 39, 0.95);
   --hj-muted: rgba(107, 114, 128, 1);
   --hj-line: rgba(17, 24, 39, 0.08);
+  --hj-neon-1: rgba(255, 90, 159, 0.55);
+  --hj-neon-2: rgba(88, 215, 255, 0.45);
+  --hj-hero-bg: radial-gradient(1200px 420px at 20% 10%, rgba(255, 90, 159, 0.20), transparent 55%),
+                radial-gradient(900px 380px at 80% 0%, rgba(88, 215, 255, 0.18), transparent 55%),
+                linear-gradient(180deg, rgba(12, 14, 20, 0.96), rgba(8, 10, 15, 0.98));
 }
 
 html, body, [class*="css"] {
-  font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Noto Sans SC", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color: var(--hj-text);
 }
 
 .block-container { padding-top: 2.2rem; }
 
 .hj-hero {
-  padding: 0.15rem 0 0.95rem 0;
-  border-bottom: 1px solid var(--hj-line);
-  margin-bottom: 1.1rem;
+  padding: 1.05rem 1.05rem 1.05rem 1.05rem;
+  margin: 0 0 1.1rem 0;
+  border-radius: 18px;
+  background: var(--hj-hero-bg);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  box-shadow:
+    0 18px 55px rgba(0, 0, 0, 0.35),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 .hj-title {
-  font-family: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", "SimSun", serif;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  font-size: 2.35rem;
-  line-height: 1.18;
+  /* “招牌感”：略夸张但不浮夸，失败就回退到常规字体 */
+  font-family: "ZCOOL QingKe HuangYou", "Songti SC", "STSong", "Noto Serif SC", "SimSun", serif;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  font-size: 2.65rem;
+  line-height: 1.06;
   margin: 0 0 0.25rem 0;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow:
+    0 0 6px rgba(255, 255, 255, 0.22),
+    0 0 18px var(--hj-neon-1),
+    0 0 32px var(--hj-neon-2);
 }
 .hj-subtitle {
-  color: var(--hj-muted);
+  color: rgba(255, 255, 255, 0.78);
   font-size: 1.02rem;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   margin: 0;
 }
 
 /* 手机端：给顶部工具栏留足空间，避免遮住标题（含刘海安全区） */
 @media (max-width: 640px) {
   .block-container { padding-top: calc(5.25rem + env(safe-area-inset-top)); }
-  .hj-title { font-size: 1.95rem; line-height: 1.22; }
+  .hj-hero { border-radius: 16px; padding: 0.95rem 0.95rem; }
+  .hj-title { font-size: 2.15rem; line-height: 1.10; }
   .hj-subtitle { font-size: 0.98rem; }
 }
 </style>
