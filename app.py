@@ -414,8 +414,8 @@ html, body, [class*="css"] {
 }
 
 .block-container {
-  /* 桌面端也给顶部导航多留一点空间，避免被 Streamlit 顶栏遮住 */
-  padding-top: calc(4.4rem + env(safe-area-inset-top));
+  /* 桌面端也给顶部导航多留更大的空间，避免被 Streamlit 顶栏遮住 */
+  padding-top: calc(6rem + env(safe-area-inset-top));
 }
 
 .hj-hero {
