@@ -16,6 +16,7 @@ import plotly.io as pio
 from backtest.engine import BacktestEngine
 from strategies.strategy_1 import Strategy1
 from strategies.strategy_2 import Strategy2
+from strategies.strategy_3 import Strategy3
 
 
 st.set_page_config(
@@ -208,20 +209,12 @@ def main():
 - 卖出：均线死叉 或 RSI > 75（趋势向下或过热）
 - 优势：减少假信号，避免在过热时买入，避免过早卖出
 
-**RSI 阈值详解（用生活例子理解）**
-- **RSI 是什么**：0-100 的数字，表示市场"热度"
-  - RSI = 30：很冷清，买的人少（超卖）
-  - RSI = 50：正常，买卖平衡
-  - RSI = 70：很热，买的人多（超买）
-  - RSI = 90：超级热，大家都在抢购
-
-- **买入阈值（RSI < 70）**：就像"不要在大家疯狂抢购 iPhone 的时候去买"
-  - 如果 RSI = 80（很热），即使均线金叉了，也不买（因为太热了，可能马上要跌）
-  - 如果 RSI = 60（正常热），均线金叉了就可以买（热度刚好，还有上涨空间）
-
-- **卖出阈值（RSI > 75）**：就像"当大家疯狂抢购 iPhone 的时候，赶紧卖掉"
-  - 如果 RSI = 80（很热），即使均线还没死叉，也要卖（因为太热了，可能马上要跌）
-  - 如果 RSI = 65（正常热），继续持有（热度还可以，可能还会涨）
+**策略 3：MACD + 成交量（专业级）**
+- 使用 MACD（专业交易员最常用的趋势指标）+ 成交量确认
+- MACD 由三条线组成：MACD 线、信号线、柱状图
+- 买入：MACD 金叉 + 成交量放大（确认有资金支持）
+- 卖出：MACD 死叉 或 MACD 柱状图转负
+- 优势：专业级策略，结合趋势和资金流向，减少假信号
 
 **三张图**
 - 价格与买卖点：看什么时候买/卖
@@ -254,16 +247,21 @@ def main():
 
         st.divider()
         st.subheader("策略")
-        策略选择 = st.selectbox("选择策略", options=["策略 1：均线交叉", "策略 2：均线 + RSI"], index=1)
+        策略选择 = st.selectbox("选择策略", options=["策略 1：均线交叉", "策略 2：均线 + RSI", "策略 3：MACD + 成交量"], index=2)
 
-        c1, c2 = st.columns(2)
-        with c1:
-            if 策略选择 == "策略 2：均线 + RSI":
-                short_window = st.number_input("短期均线天数", min_value=2, max_value=200, value=10, step=1)
-            else:
-                short_window = st.number_input("短期均线天数", min_value=2, max_value=200, value=5, step=1)
-        with c2:
-            long_window = st.number_input("长期均线天数", min_value=5, max_value=400, value=30, step=1)
+        # 策略 1 和 2 的均线参数
+        if 策略选择 in ["策略 1：均线交叉", "策略 2：均线 + RSI"]:
+            c1, c2 = st.columns(2)
+            with c1:
+                if 策略选择 == "策略 2：均线 + RSI":
+                    short_window = st.number_input("短期均线天数", min_value=2, max_value=200, value=10, step=1)
+                else:
+                    short_window = st.number_input("短期均线天数", min_value=2, max_value=200, value=5, step=1)
+            with c2:
+                long_window = st.number_input("长期均线天数", min_value=5, max_value=400, value=30, step=1)
+        else:
+            short_window = 5
+            long_window = 30
         
         # 策略 2 的 RSI 参数
         if 策略选择 == "策略 2：均线 + RSI":
@@ -272,27 +270,37 @@ def main():
             with rsi_col1:
                 rsi_period = st.number_input("RSI 周期", min_value=5, max_value=30, value=14, step=1)
             with rsi_col2:
-                rsi_buy_threshold = st.number_input(
-                    "买入 RSI 阈值", 
-                    min_value=50.0, 
-                    max_value=85.0, 
-                    value=70.0, 
-                    step=5.0, 
-                    help="RSI 必须低于这个数字才能买入。比如设为 70，意思是：即使均线金叉了，如果 RSI > 70（太热），也不买。就像不要在大家疯狂抢购的时候去买。"
-                )
+                rsi_buy_threshold = st.number_input("买入 RSI 阈值", min_value=50.0, max_value=85.0, value=70.0, step=5.0, help="RSI 低于此值时才买入，避免过热时买入")
             with rsi_col3:
-                rsi_overbought = st.number_input(
-                    "卖出 RSI 阈值", 
-                    min_value=60.0, 
-                    max_value=90.0, 
-                    value=75.0, 
-                    step=5.0, 
-                    help="RSI 超过这个数字就卖出。比如设为 75，意思是：如果 RSI > 75（太热），即使均线还没死叉，也要卖。就像在大家疯狂抢购的时候赶紧卖掉。"
-                )
+                rsi_overbought = st.number_input("卖出 RSI 阈值", min_value=60.0, max_value=90.0, value=75.0, step=5.0, help="RSI 超过此值时卖出，避免过早卖出")
         else:
             rsi_period = 14
             rsi_buy_threshold = 70.0
             rsi_overbought = 75.0
+        
+        # 策略 3 的 MACD 参数
+        if 策略选择 == "策略 3：MACD + 成交量":
+            st.caption("MACD 参数（策略 3）")
+            macd_col1, macd_col2, macd_col3 = st.columns(3)
+            with macd_col1:
+                macd_fast = st.number_input("MACD 快线周期", min_value=5, max_value=30, value=12, step=1, help="默认 12，专业标准")
+            with macd_col2:
+                macd_slow = st.number_input("MACD 慢线周期", min_value=15, max_value=50, value=26, step=1, help="默认 26，专业标准")
+            with macd_col3:
+                macd_signal = st.number_input("MACD 信号线周期", min_value=5, max_value=20, value=9, step=1, help="默认 9，专业标准")
+            
+            st.caption("成交量参数（策略 3）")
+            vol_col1, vol_col2 = st.columns(2)
+            with vol_col1:
+                volume_ma_period = st.number_input("成交量均线周期", min_value=10, max_value=50, value=20, step=1, help="计算成交量移动平均的周期")
+            with vol_col2:
+                volume_threshold = st.number_input("成交量放大倍数", min_value=1.0, max_value=3.0, value=1.2, step=0.1, format="%.1f", help="成交量需超过均量的倍数，默认 1.2 倍")
+        else:
+            macd_fast = 12
+            macd_slow = 26
+            macd_signal = 9
+            volume_ma_period = 20
+            volume_threshold = 1.2
 
         st.divider()
         st.subheader("交易设置")
@@ -314,8 +322,9 @@ def main():
         st.error("日期范围不合法：开始日期必须早于结束日期。")
         return
 
-    if short_window >= long_window:
-        st.warning("提示：通常短期均线应小于长期均线。你也可以继续跑，但含义可能不太符合常见用法。")
+    if 策略选择 in ["策略 1：均线交叉", "策略 2：均线 + RSI"]:
+        if short_window >= long_window:
+            st.warning("提示：通常短期均线应小于长期均线。你也可以继续跑，但含义可能不太符合常见用法。")
 
     start_str = start.strftime("%Y-%m-%d")
     end_str = end.strftime("%Y-%m-%d")
@@ -337,6 +346,11 @@ def main():
                     rsi_period=int(rsi_period),
                     rsi_buy_threshold=float(rsi_buy_threshold),
                     rsi_overbought=float(rsi_overbought),
+                    macd_fast=int(macd_fast),
+                    macd_slow=int(macd_slow),
+                    macd_signal=int(macd_signal),
+                    volume_ma_period=int(volume_ma_period),
+                    volume_threshold=float(volume_threshold),
                 )
         except Exception as e:
             st.error(f"回测失败：{e}")
