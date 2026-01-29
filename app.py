@@ -65,7 +65,19 @@ def _run_backtest_cached(
     用 Streamlit 缓存避免重复下载同一份数据。
     注意：只缓存“相同输入参数”的结果。
     """
-    strategy = Strategy1(short_window=short_window, long_window=long_window)
+    if strategy_type == "策略 1：均线交叉":
+        strategy = Strategy1(short_window=short_window, long_window=long_window)
+    elif strategy_type == "策略 2：均线 + RSI":
+        strategy = Strategy2(
+            short_window=short_window,
+            long_window=long_window,
+            rsi_period=rsi_period,
+            rsi_buy_threshold=rsi_buy_threshold,
+            rsi_overbought=rsi_overbought,
+        )
+    else:
+        strategy = Strategy1(short_window=short_window, long_window=long_window)
+    
     engine = BacktestEngine(initial_capital=initial_capital, commission=commission)
     result = engine.run(strategy=strategy, symbol=symbol, start_date=start_date, end_date=end_date)
     # 为网页后续画图/下载保留 engine 的内部状态
