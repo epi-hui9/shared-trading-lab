@@ -49,23 +49,23 @@ class Strategy2(BaseStrategy):
     
     def __init__(
         self,
-        short_window: int = 5,
+        short_window: int = 10,
         long_window: int = 30,
         rsi_period: int = 14,
         rsi_oversold: float = 30.0,
-        rsi_overbought: float = 70.0,
-        rsi_buy_threshold: float = 50.0
+        rsi_overbought: float = 75.0,
+        rsi_buy_threshold: float = 70.0
     ):
         """
         初始化策略
         
         参数:
-            short_window: 短期移动平均天数（默认 5）
+            short_window: 短期移动平均天数（默认 10，比 5 更稳定）
             long_window: 长期移动平均天数（默认 30）
             rsi_period: RSI 计算周期（默认 14）
             rsi_oversold: RSI 超卖阈值（默认 30）
-            rsi_overbought: RSI 超买阈值（默认 70）
-            rsi_buy_threshold: RSI 买入阈值（默认 50，买入时 RSI 应小于此值）
+            rsi_overbought: RSI 超买阈值（默认 75，避免过早卖出）
+            rsi_buy_threshold: RSI 买入阈值（默认 70，买入时 RSI 应小于此值，避免在过热时买入）
         """
         super().__init__(
             name="策略 2：均线 + RSI",
@@ -116,14 +116,14 @@ class Strategy2(BaseStrategy):
             curr_long = df.loc[i, 'MA_Long']
             curr_rsi = df.loc[i, 'RSI']
             
-            # 买入条件：均线金叉 + RSI 还没过热
+            # 买入条件：均线金叉 + RSI 不在超买区（避免在过热时买入）
             is_golden_cross = prev_short <= prev_long and curr_short > curr_long
-            is_rsi_ok = curr_rsi < self.rsi_buy_threshold
+            is_rsi_not_overbought = curr_rsi < self.rsi_buy_threshold
             
-            if is_golden_cross and is_rsi_ok:
+            if is_golden_cross and is_rsi_not_overbought:
                 df.loc[i, 'Signal'] = 1  # 买入
             
-            # 卖出条件：均线死叉 或 RSI 过热
+            # 卖出条件：均线死叉 或 RSI 过热（趋势反转或过热时卖出）
             is_death_cross = prev_short >= prev_long and curr_short < curr_long
             is_rsi_overbought = curr_rsi > self.rsi_overbought
             
@@ -142,12 +142,12 @@ if __name__ == '__main__':
     print("策略 2：均线 + RSI 回测")
     print("=" * 60)
     print("\n策略说明：")
-    print("- 买入：均线金叉 + RSI < 50")
-    print("- 卖出：均线死叉 或 RSI > 70")
+    print("- 买入：均线金叉 + RSI < 70")
+    print("- 卖出：均线死叉 或 RSI > 75")
     print("\n开始回测...\n")
     
-    # 创建策略
-    strategy = Strategy2(short_window=5, long_window=30)
+    # 创建策略（使用优化后的默认参数）
+    strategy = Strategy2(short_window=10, long_window=30)
     
     # 创建回测引擎
     engine = BacktestEngine(initial_capital=10000.0, commission=0.001)

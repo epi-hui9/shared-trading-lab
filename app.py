@@ -204,9 +204,9 @@ def main():
 
 **策略 2：均线 + RSI**
 - 使用两条均线 + RSI（相对强弱指标）
-- 买入：均线金叉 + RSI < 50（趋势向上且还没过热）
-- 卖出：均线死叉 或 RSI > 70（趋势向下或过热）
-- 优势：减少假信号，避免在过热时买入
+- 买入：均线金叉 + RSI < 70（趋势向上且不在超买区）
+- 卖出：均线死叉 或 RSI > 75（趋势向下或过热）
+- 优势：减少假信号，避免在过热时买入，避免过早卖出
 
 **三张图**
 - 价格与买卖点：看什么时候买/卖
@@ -243,7 +243,10 @@ def main():
 
         c1, c2 = st.columns(2)
         with c1:
-            short_window = st.number_input("短期均线天数", min_value=2, max_value=200, value=5, step=1)
+            if 策略选择 == "策略 2：均线 + RSI":
+                short_window = st.number_input("短期均线天数", min_value=2, max_value=200, value=10, step=1)
+            else:
+                short_window = st.number_input("短期均线天数", min_value=2, max_value=200, value=5, step=1)
         with c2:
             long_window = st.number_input("长期均线天数", min_value=5, max_value=400, value=30, step=1)
         
@@ -254,13 +257,13 @@ def main():
             with rsi_col1:
                 rsi_period = st.number_input("RSI 周期", min_value=5, max_value=30, value=14, step=1)
             with rsi_col2:
-                rsi_buy_threshold = st.number_input("买入 RSI 阈值", min_value=30.0, max_value=70.0, value=50.0, step=5.0)
+                rsi_buy_threshold = st.number_input("买入 RSI 阈值", min_value=50.0, max_value=85.0, value=70.0, step=5.0, help="RSI 低于此值时才买入，避免过热时买入")
             with rsi_col3:
-                rsi_overbought = st.number_input("卖出 RSI 阈值", min_value=60.0, max_value=90.0, value=70.0, step=5.0)
+                rsi_overbought = st.number_input("卖出 RSI 阈值", min_value=60.0, max_value=90.0, value=75.0, step=5.0, help="RSI 超过此值时卖出，避免过早卖出")
         else:
             rsi_period = 14
-            rsi_buy_threshold = 50.0
-            rsi_overbought = 70.0
+            rsi_buy_threshold = 70.0
+            rsi_overbought = 75.0
 
         st.divider()
         st.subheader("交易设置")
