@@ -222,12 +222,12 @@ def main():
 - 卖出：均线死叉 或 RSI > 75（趋势向下或过热）
 - 优势：减少假信号，避免在过热时买入，避免过早卖出
 
-**策略 3：MACD + 成交量（专业级）**
-- 使用 MACD（专业交易员最常用的趋势指标）+ 成交量确认
+**策略 3：MACD + 成交量**
+- 使用 MACD（趋势指标）+ 成交量确认
 - MACD 由三条线组成：MACD 线、信号线、柱状图
 - 买入：MACD 金叉 + 成交量放大（确认有资金支持）
 - 卖出：MACD 死叉 或 MACD 柱状图转负
-- 优势：专业级策略，结合趋势和资金流向，减少假信号
+- 优势：结合趋势和资金流向，减少假信号
 
 **三张图**
 - 价格与买卖点：看什么时候买/卖
@@ -296,11 +296,11 @@ def main():
             st.caption("MACD 参数（策略 3）")
             macd_col1, macd_col2, macd_col3 = st.columns(3)
             with macd_col1:
-                macd_fast = st.number_input("MACD 快线周期", min_value=5, max_value=30, value=12, step=1, help="默认 12，专业标准")
+                macd_fast = st.number_input("MACD 快线周期", min_value=5, max_value=30, value=12, step=1, help="默认 12")
             with macd_col2:
-                macd_slow = st.number_input("MACD 慢线周期", min_value=15, max_value=50, value=26, step=1, help="默认 26，专业标准")
+                macd_slow = st.number_input("MACD 慢线周期", min_value=15, max_value=50, value=26, step=1, help="默认 26")
             with macd_col3:
-                macd_signal = st.number_input("MACD 信号线周期", min_value=5, max_value=20, value=9, step=1, help="默认 9，专业标准")
+                macd_signal = st.number_input("MACD 信号线周期", min_value=5, max_value=20, value=9, step=1, help="默认 9")
             
             st.caption("成交量参数（策略 3）")
             vol_col1, vol_col2 = st.columns(2)
