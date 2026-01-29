@@ -15,6 +15,7 @@ import plotly.io as pio
 
 from backtest.engine import BacktestEngine
 from strategies.strategy_1 import Strategy1
+from strategies.strategy_2 import Strategy2
 
 
 st.set_page_config(
@@ -216,13 +217,28 @@ def main():
 
         st.divider()
         st.subheader("策略")
-        st.selectbox("选择策略", options=["策略 1：均线交叉"], index=0, disabled=True)
+        策略选择 = st.selectbox("选择策略", options=["策略 1：均线交叉", "策略 2：均线 + RSI"], index=1)
 
         c1, c2 = st.columns(2)
         with c1:
             short_window = st.number_input("短期均线天数", min_value=2, max_value=200, value=5, step=1)
         with c2:
             long_window = st.number_input("长期均线天数", min_value=5, max_value=400, value=30, step=1)
+        
+        # 策略 2 的 RSI 参数
+        if 策略选择 == "策略 2：均线 + RSI":
+            st.caption("RSI 参数（策略 2）")
+            rsi_col1, rsi_col2, rsi_col3 = st.columns(3)
+            with rsi_col1:
+                rsi_period = st.number_input("RSI 周期", min_value=5, max_value=30, value=14, step=1)
+            with rsi_col2:
+                rsi_buy_threshold = st.number_input("买入 RSI 阈值", min_value=30.0, max_value=70.0, value=50.0, step=5.0)
+            with rsi_col3:
+                rsi_overbought = st.number_input("卖出 RSI 阈值", min_value=60.0, max_value=90.0, value=70.0, step=5.0)
+        else:
+            rsi_period = 14
+            rsi_buy_threshold = 50.0
+            rsi_overbought = 70.0
 
         st.divider()
         st.subheader("交易设置")
@@ -261,8 +277,12 @@ def main():
                     end_date=end_str,
                     initial_capital=float(initial_capital),
                     commission=float(commission),
+                    strategy_type=策略选择,
                     short_window=int(short_window),
                     long_window=int(long_window),
+                    rsi_period=int(rsi_period),
+                    rsi_buy_threshold=float(rsi_buy_threshold),
+                    rsi_overbought=float(rsi_overbought),
                 )
         except Exception as e:
             st.error(f"回测失败：{e}")
