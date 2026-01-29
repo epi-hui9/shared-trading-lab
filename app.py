@@ -413,7 +413,10 @@ html, body, [class*="css"] {
   color: var(--hj-text);
 }
 
-.block-container { padding-top: 2.2rem; }
+.block-container {
+  /* 桌面端也给顶部导航多留一点空间，避免被 Streamlit 顶栏遮住 */
+  padding-top: calc(4.4rem + env(safe-area-inset-top));
+}
 
 .hj-hero {
   padding: 1.05rem 1.05rem 1.05rem 1.05rem;
