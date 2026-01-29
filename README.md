@@ -2,6 +2,10 @@
 
 > 绘九一起做的「股票策略实验室」：支持单只回测和组合回测
 
+## 在线地址（给阿九）
+
+- 固定网址：`https://shared-trading-lab-4wjsslhltjb3zbcgs8hjpt.streamlit.app`
+
 ## 项目简介
 
 **绘九的交易实验室** 是一个面向绘和阿九（绘九）的小型股票策略实验工具，支持：
@@ -14,22 +18,34 @@
 
 ## 快速开始
 
-### Web 版（推荐）
+### 本地启动 Web（开发/调试用）
 
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-> 提示：也可以参考 `DEPLOY_STREAMLIT.md` 把网页部署到 Streamlit Cloud，这样阿九直接用浏览器访问即可。
+然后在浏览器访问 `http://localhost:8501`。
+
+## 部署与更新（Streamlit Cloud）
+
+- **部署一次**：
+  1. 打开 Streamlit Cloud（Streamlit Community Cloud）
+  2. 用 GitHub 登录
+  3. 点 **New app**
+  4. 选择仓库：`shared-trading-lab`
+  5. 入口文件（Main file）：`app.py`
+  6. 点 **Deploy**
+
+- **以后怎么更新**：
+  - 你改代码并 `git push` 后，网页会自动更新
+  - 阿九刷新网页就能看到新版本
 
 ## 项目结构
 
 ```
 shared-trading-lab/
 ├── README.md              # 项目说明
-├── USAGE.md               # 使用指南（更详细的使用说明）
-├── DEPLOY_STREAMLIT.md   # 网页部署说明（Streamlit Cloud）
 ├── requirements.txt       # Python 依赖包
 ├── app.py                 # 网页版入口（Streamlit）
 ├── backtest/             # 回测框架核心代码
@@ -105,6 +121,12 @@ streamlit run app.py
    - 选择时间范围、策略与参数
    - 点击“开始回测”
    - 查看指标、图表，并可下载 PNG 图片
+
+## 常见坑（很短）
+
+- **数据拉取失败**：Yahoo Finance 偶尔会抽风，换股票/换时间段/稍等再试
+- **回测很慢**：网页有缓存，同参数第二次会更快
+- **组合回测对不齐交易日**：尽量选同一市场（例如都选美股）
 
 ## 添加新策略（进阶）
 
