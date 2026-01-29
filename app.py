@@ -240,6 +240,13 @@ html, body, [class*="css"] {
   letter-spacing: 0.01em;
   margin: 0;
 }
+
+/* 手机端：给顶部工具栏留足空间，避免遮住标题（含刘海安全区） */
+@media (max-width: 640px) {
+  .block-container { padding-top: calc(5.25rem + env(safe-area-inset-top)); }
+  .hj-title { font-size: 1.95rem; line-height: 1.22; }
+  .hj-subtitle { font-size: 0.98rem; }
+}
 </style>
 <div class="hj-hero">
   <div class="hj-title">绘九的交易实验室</div>
