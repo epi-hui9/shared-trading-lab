@@ -56,11 +56,16 @@ def _run_backtest_cached(
     initial_capital: float,
     commission: float,
     strategy_type: str,
-    short_window: int,
-    long_window: int,
+    short_window: int = 5,
+    long_window: int = 30,
     rsi_period: int = 14,
     rsi_buy_threshold: float = 50.0,
     rsi_overbought: float = 70.0,
+    macd_fast: int = 12,
+    macd_slow: int = 26,
+    macd_signal: int = 9,
+    volume_ma_period: int = 20,
+    volume_threshold: float = 1.2,
 ) -> dict:
     """
     用 Streamlit 缓存避免重复下载同一份数据。
@@ -75,6 +80,14 @@ def _run_backtest_cached(
             rsi_period=rsi_period,
             rsi_buy_threshold=rsi_buy_threshold,
             rsi_overbought=rsi_overbought,
+        )
+    elif strategy_type == "策略 3：MACD + 成交量":
+        strategy = Strategy3(
+            fast_period=macd_fast,
+            slow_period=macd_slow,
+            signal_period=macd_signal,
+            volume_ma_period=volume_ma_period,
+            volume_threshold=volume_threshold,
         )
     else:
         strategy = Strategy1(short_window=short_window, long_window=long_window)
