@@ -1,5 +1,5 @@
 """
-绘九的回测实验室 - Web App (Streamlit)
+绘九的交易实验室 - Web App (Streamlit)
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ from strategies.strategy_3 import Strategy3
 
 
 st.set_page_config(
-    page_title="绘九的回测实验室",
+    page_title="绘九的交易实验室",
     page_icon="📊",
     layout="wide",
 )
@@ -242,7 +242,7 @@ html, body, [class*="css"] {
 }
 </style>
 <div class="hj-hero">
-  <div class="hj-title">绘九的回测实验室</div>
+  <div class="hj-title">绘九的交易实验室</div>
   <div class="hj-subtitle">一个通用的股票策略回测工具 · 网页版</div>
 </div>
 """,
