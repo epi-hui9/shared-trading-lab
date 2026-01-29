@@ -54,8 +54,12 @@ def _run_backtest_cached(
     end_date: str,
     initial_capital: float,
     commission: float,
+    strategy_type: str,
     short_window: int,
     long_window: int,
+    rsi_period: int = 14,
+    rsi_buy_threshold: float = 50.0,
+    rsi_overbought: float = 70.0,
 ) -> dict:
     """
     用 Streamlit 缓存避免重复下载同一份数据。
