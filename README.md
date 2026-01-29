@@ -2,7 +2,7 @@
 
 > 绘九一起做的「股票策略实验室」：支持单只回测和组合回测
 
-## 在线地址（给阿九）
+## 在线地址
 
 - 固定网址：`https://shared-trading-lab-4wjsslhltjb3zbcgs8hjpt.streamlit.app`
 
@@ -16,30 +16,43 @@
 - ✅ **中文网页界面**：浏览器打开即可使用，适合非技术背景
 - ✅ **详细指标与图表**：总收益率、年化、最大回撤、夏普比率 + 图表下载
 
-## 快速开始
+## 使用方式（在线版）
 
-### 本地启动 Web（开发/调试用）
+1. 打开浏览器，访问固定网址：`https://shared-trading-lab-4wjsslhltjb3zbcgs8hjpt.streamlit.app`
+2. 在左侧选择：
+   - 回测模式：单只股票 / 组合（多只股票）
+   - 股票代码：从下拉列表选择，或手动输入代码
+   - 策略：策略 1 / 策略 2 / 策略 3
+   - 其他参数：时间范围、初始资金、手续费等
+3. 点击「开始回测」，等待结果加载完成。
+4. 查看收益曲线、每日收益图和指标表格，如有需要可以下载 PNG 图片保存。
+
+## 开发者说明（可选）
+
+本项目主要面向通过网页直接使用的用户。下面内容仅在需要本地开发或自行部署时参考。
+
+### 本地启动 Web
 
 ```bash
 pip install -r requirements.txt
 streamlit run app.py
 ```
 
-然后在浏览器访问 `http://localhost:8501`。
+启动后在浏览器访问 `http://localhost:8501`。
 
-## 部署与更新（Streamlit Cloud）
+### 部署与更新（Streamlit Cloud）
 
-- **部署一次**：
-  1. 打开 Streamlit Cloud（Streamlit Community Cloud）
-  2. 用 GitHub 登录
-  3. 点 **New app**
+- 部署一次：
+  1. 打开 Streamlit Community Cloud
+  2. 使用 GitHub 登录
+  3. 点击 **New app**
   4. 选择仓库：`shared-trading-lab`
   5. 入口文件（Main file）：`app.py`
-  6. 点 **Deploy**
+  6. 点击 **Deploy**
 
-- **以后怎么更新**：
-  - 你改代码并 `git push` 后，网页会自动更新
-  - 阿九刷新网页就能看到新版本
+- 以后更新：
+  - 推送代码到 GitHub（`git push`）后，网页会自动更新
+  - 刷新网页即可看到新版本
 
 ## 项目结构
 
@@ -48,18 +61,16 @@ shared-trading-lab/
 ├── README.md              # 项目说明
 ├── requirements.txt       # Python 依赖包
 ├── app.py                 # 网页版入口（Streamlit）
-├── backtest/             # 回测框架核心代码
+├── backtest/              # 回测框架核心代码
 │   ├── __init__.py
-│   ├── engine.py         # 回测引擎
-│   ├── strategy.py       # 策略基类
-│   └── data_loader.py    # 数据加载器
-├── strategies/           # 策略实现
+│   ├── engine.py          # 回测引擎
+│   ├── strategy.py        # 策略基类
+│   └── data_loader.py     # 数据加载器
+├── strategies/            # 策略实现
 │   ├── __init__.py
-│   ├── strategy_1.py     # 策略1：均线策略
-│   ├── strategy_2.py     # 策略2：均线 + RSI
-│   └── strategy_3.py     # 策略3：MACD + 成交量
-├── data/                 # 数据存储
-└── logs/                 # 回测结果和日志
+│   ├── strategy_1.py      # 策略1：均线策略
+│   ├── strategy_2.py      # 策略2：均线 + RSI
+│   └── strategy_3.py      # 策略3：MACD + 成交量
 ```
 
 ## 核心功能
@@ -71,7 +82,7 @@ shared-trading-lab/
 - **A股**：如 `000001.SZ`（平安银行）、`600000.SS`（浦发银行）
 - **其他国际市场**：欧洲、日本、澳大利亚等
 
-### 2. 策略系统（像“换衣服”一样切换）
+### 2. 策略系统
 
 策略就像"衣服"一样可以轻松切换，目前内置 3 个：
 
@@ -103,24 +114,17 @@ shared-trading-lab/
 
 ## 网页使用示例
 
-1. 安装依赖：
+以单只股票为例，典型使用步骤如下：
 
-```bash
-pip install -r requirements.txt
-```
-
-2. 启动网页：
-
-```bash
-streamlit run app.py
-```
-
-3. 在浏览器中：
-   - 选择「单只股票」或「组合（多只股票）」
-   - 选股票代码 / 多选一篮子股票
-   - 选择时间范围、策略与参数
-   - 点击“开始回测”
-   - 查看指标、图表，并可下载 PNG 图片
+1. 在左侧选择「单只股票」模式。
+2. 从下拉框选择一只股票（例如 AAPL），或手动输入股票代码。
+3. 选择回测时间范围和一个策略，例如「策略 2：均线 + RSI」。
+4. 点击「开始回测」。
+5. 浏览页面中的：
+   - 收益曲线（净值走势）
+   - 每日收益图
+   - 指标表格（年化收益、最大回撤等）
+6. 如需与对方分享结果，可下载 PNG 图片后通过聊天工具发送。
 
 ## 常见坑（很短）
 
@@ -148,7 +152,7 @@ class Strategy2(BaseStrategy):
         super().__init__(name="策略2", **params)
     
     def generate_signals(self) -> pd.DataFrame:
-        # 实现你的策略逻辑
+        # 实现策略逻辑
         # 返回包含 'Date' 和 'Signal' 列的 DataFrame
         pass
 ```
