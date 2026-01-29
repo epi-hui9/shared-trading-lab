@@ -1,5 +1,5 @@
 """
-Shared Trading Lab - 图形界面
+绘九的回测实验室 - 图形界面
 """
 
 import tkinter as tk
@@ -18,7 +18,7 @@ class TradingLabGUI:
     
     def __init__(self, root):
         self.root = root
-        self.root.title("Shared Trading Lab - 股票策略回测工具")
+        self.root.title("绘九的回测实验室 - 股票策略回测工具")
         self.root.geometry("800x700")
         
         # 回测引擎
@@ -38,7 +38,7 @@ class TradingLabGUI:
         # 标题
         title_label = ttk.Label(
             main_frame, 
-            text="Shared Trading Lab", 
+            text="绘九的回测实验室", 
             font=("Arial", 16, "bold")
         )
         title_label.grid(row=0, column=0, columnspan=2, pady=10)

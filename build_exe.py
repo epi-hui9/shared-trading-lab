@@ -12,7 +12,7 @@ def build_exe():
     """打包成 exe"""
     
     print("=" * 60)
-    print("Shared Trading Lab - 打包工具")
+    print("绘九的回测实验室 - 打包工具")
     print("=" * 60)
     print()
     

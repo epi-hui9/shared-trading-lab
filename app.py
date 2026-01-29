@@ -1,5 +1,5 @@
 """
-Shared Trading Lab - Web App (Streamlit)
+绘九的回测实验室 - Web App (Streamlit)
 """
 
 from __future__ import annotations
@@ -20,7 +20,7 @@ from strategies.strategy_3 import Strategy3
 
 
 st.set_page_config(
-    page_title="Shared Trading Lab",
+    page_title="绘九的回测实验室",
     page_icon="📊",
     layout="wide",
 )
@@ -204,8 +204,50 @@ def _build_charts(
 
 
 def main():
-    st.title("Shared Trading Lab")
-    st.caption("一个通用的股票策略回测工具 · 网页版")
+    st.markdown(
+        """
+<style>
+/* 轻量优雅排版（尽量使用系统内置中文字体，无需额外下载） */
+:root {
+  --hj-text: rgba(17, 24, 39, 0.95);
+  --hj-muted: rgba(107, 114, 128, 1);
+  --hj-line: rgba(17, 24, 39, 0.08);
+}
+
+html, body, [class*="css"] {
+  font-family: "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", "Microsoft YaHei", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--hj-text);
+}
+
+.block-container { padding-top: 2.2rem; }
+
+.hj-hero {
+  padding: 0.15rem 0 0.95rem 0;
+  border-bottom: 1px solid var(--hj-line);
+  margin-bottom: 1.1rem;
+}
+.hj-title {
+  font-family: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", "SimSun", serif;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-size: 2.35rem;
+  line-height: 1.18;
+  margin: 0 0 0.25rem 0;
+}
+.hj-subtitle {
+  color: var(--hj-muted);
+  font-size: 1.02rem;
+  letter-spacing: 0.01em;
+  margin: 0;
+}
+</style>
+<div class="hj-hero">
+  <div class="hj-title">绘九的回测实验室</div>
+  <div class="hj-subtitle">一个通用的股票策略回测工具 · 网页版</div>
+</div>
+""",
+        unsafe_allow_html=True,
+    )
 
     with st.expander("说明", expanded=False):
         st.markdown(
